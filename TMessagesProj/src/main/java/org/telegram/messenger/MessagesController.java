@@ -11046,6 +11046,7 @@ public void updateTimerProc() {
         if (threads.get(threadMsgId) != null) {
             return false;
         }
+        if (!MelGramConfig.ghostMode) {
         if (!DialogObject.isEncryptedDialog(dialogId)) {
             TLRPC.TL_messages_setTyping req = new TLRPC.TL_messages_setTyping();
             if (threadMsgId != 0) {
@@ -11098,6 +11099,23 @@ public void updateTimerProc() {
             if (action != 0) {
                 return false;
             }
+            TLRPC.EncryptedChat chat = getEncryptedChat(DialogObject.getEncryptedChatId(dialogId));
+            if (chat.auth_key != null && chat.auth_key.length > 1 && chat instanceof TLRPC.TL_encryptedChat) {
+                TLRPC.TL_messages_setEncryptedTyping req = new TLRPC.TL_messages_setEncryptedTyping();
+                req.peer = new TLRPC.TL_inputEncryptedChat();
+                req.peer.chat_id = chat.id;
+                req.peer.access_hash = chat.access_hash;
+                req.typing = true;
+                threads.put(threadMsgId, true);
+                int reqId = getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> cancelTyping(action, dialogId, threadMsgId)), ConnectionsManager.RequestFlagFailOnServerErrors);
+                if (classGuid != 0) {
+                    getConnectionsManager().bindRequestToGuid(reqId, classGuid);
+                }
+            }
+        }
+        }
+        return true;
+    }
             TLRPC.EncryptedChat chat = getEncryptedChat(DialogObject.getEncryptedChatId(dialogId));
             if (chat.auth_key != null && chat.auth_key.length > 1 && chat instanceof TLRPC.TL_encryptedChat) {
                 TLRPC.TL_messages_setEncryptedTyping req = new TLRPC.TL_messages_setEncryptedTyping();
