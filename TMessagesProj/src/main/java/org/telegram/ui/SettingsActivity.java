@@ -728,6 +728,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         if (items.get(items.size() - 1).viewType != UniversalAdapter.VIEW_TYPE_SHADOW)
             items.add(UItem.asShadow(null));
 
+        items.add(UItem.asShadow(null));
+        items.add(UItem.asHeader("MelGram"));
+        items.add(SettingCell.Factory.of(100, 0xFF6C5CE7, 0xFF4A3ABA, R.drawable.settings_privacy, "MelGram Settings", "Настройки форка"));
         items.add(UItem.asHeader(getString(R.string.SettingsHelp)));
         items.add(SettingCell.Factory.of(17, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_ask, getString(R.string.AskAQuestion)));
         items.add(SettingCell.Factory.of(18, IconBackgroundColors.BLUE_LIGHT.top, IconBackgroundColors.BLUE_LIGHT.bottom, R.drawable.settings_faq, getString(R.string.TelegramFAQ)));
