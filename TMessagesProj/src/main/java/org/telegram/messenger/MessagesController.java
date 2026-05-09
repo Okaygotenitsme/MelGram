@@ -14107,6 +14107,9 @@ public void updateTimerProc() {
     }
 
     private void completeReadTask(ReadTask task) {
+        if (MelGramConfig.ghostMode) {
+            return;
+        }
         if (task.replyId != 0 && task.monoForumPeerId == 0) {
             TLRPC.TL_messages_readDiscussion req = new TLRPC.TL_messages_readDiscussion();
             req.msg_id = (int) task.replyId;
@@ -14157,7 +14160,8 @@ public void updateTimerProc() {
                 });
             }
         }
-    }
+}
+    
 
     private void checkReadTasks() {
         long time = SystemClock.elapsedRealtime();
