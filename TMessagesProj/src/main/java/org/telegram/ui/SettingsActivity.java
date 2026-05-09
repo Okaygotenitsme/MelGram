@@ -859,6 +859,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 }
                 break;
             }
+            case 100:
+                presentFragment(new MelGramSettingsActivity());
+                break;
         }
     }
 
