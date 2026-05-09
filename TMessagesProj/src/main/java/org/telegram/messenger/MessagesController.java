@@ -10140,7 +10140,8 @@ public class MessagesController extends BaseController implements NotificationCe
         });
     }
 
-    public void updateTimerProc() {
+    
+public void updateTimerProc() {
         long currentTime = System.currentTimeMillis();
 
         checkDeletingTask(false);
@@ -10156,20 +10157,22 @@ public class MessagesController extends BaseController implements NotificationCe
                             getConnectionsManager().cancelRequest(statusRequest, true);
                         }
 
-                        TL_account.updateStatus req = new TL_account.updateStatus();
-                        req.offline = false;
-                        statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
-                            if (error == null) {
-                                lastStatusUpdateTime = System.currentTimeMillis();
-                                offlineSent = false;
-                                statusSettingState = 0;
-                            } else {
-                                if (lastStatusUpdateTime != 0) {
-                                    lastStatusUpdateTime += 5000;
+                        if (!MelGramConfig.ghostMode) {
+                            TL_account.updateStatus req = new TL_account.updateStatus();
+                            req.offline = false;
+                            statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
+                                if (error == null) {
+                                    lastStatusUpdateTime = System.currentTimeMillis();
+                                    offlineSent = false;
+                                    statusSettingState = 0;
+                                } else {
+                                    if (lastStatusUpdateTime != 0) {
+                                        lastStatusUpdateTime += 5000;
+                                    }
                                 }
-                            }
-                            statusRequest = 0;
-                        });
+                                statusRequest = 0;
+                            });
+                        }
                     }
                 }
             } else if (statusSettingState != 2 && !offlineSent && Math.abs(System.currentTimeMillis() - getConnectionsManager().getPauseTime()) >= 2000) {
@@ -10177,20 +10180,21 @@ public class MessagesController extends BaseController implements NotificationCe
                 if (statusRequest != 0) {
                     getConnectionsManager().cancelRequest(statusRequest, true);
                 }
-                TL_account.updateStatus req = new TL_account.updateStatus();
-                req.offline = true;
-                statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
-                    if (error == null) {
-                        offlineSent = true;
-                    } else {
-                        if (lastStatusUpdateTime != 0) {
-                            lastStatusUpdateTime += 5000;
+                if (!MelGramConfig.ghostMode) {
+                    TL_account.updateStatus req = new TL_account.updateStatus();
+                    req.offline = true;
+                    statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
+                        if (error == null) {
+                            offlineSent = true;
+                        } else {
+                            if (lastStatusUpdateTime != 0) {
+                                lastStatusUpdateTime += 5000;
+                            }
                         }
-                    }
-                    statusRequest = 0;
-                });
+                        statusRequest = 0;
+                    });
+                }
             }
-
             if (updatesQueueChannels.size() != 0) {
                 for (int a = 0; a < updatesQueueChannels.size(); a++) {
                     long key = updatesQueueChannels.keyAt(a);
