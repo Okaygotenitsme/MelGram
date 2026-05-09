@@ -18042,16 +18042,19 @@ public void updateTimerProc() {
                 }
                 dialogs_read_outbox_max.put(dialogId, Math.max(value, update.max_id));
             } else if (baseUpdate instanceof TLRPC.TL_updateDeleteMessages) {
-                TLRPC.TL_updateDeleteMessages update = (TLRPC.TL_updateDeleteMessages) baseUpdate;
-                if (deletedMessages == null) {
-                    deletedMessages = new LongSparseArray<>();
-                }
-                ArrayList<Integer> arrayList = deletedMessages.get(0);
-                if (arrayList == null) {
-                    arrayList = new ArrayList<>();
-                    deletedMessages.put(0, arrayList);
-                }
-                arrayList.addAll(update.messages);
+    TLRPC.TL_updateDeleteMessages update = (TLRPC.TL_updateDeleteMessages) baseUpdate;
+    if (MelGramConfig.showDeletedMessages) {
+        getMessagesStorage().saveDeletedMessages(0, update.messages);
+    }
+    if (deletedMessages == null) {
+        deletedMessages = new LongSparseArray<>();
+    }
+    ArrayList<Integer> arrayList = deletedMessages.get(0);
+    if (arrayList == null) {
+        arrayList = new ArrayList<>();
+        deletedMessages.put(0, arrayList);
+    }
+    arrayList.addAll(update.messages);
             } else if (baseUpdate instanceof TLRPC.TL_updateDeleteQuickReplyMessages) {
                 TLRPC.TL_updateDeleteQuickReplyMessages update = (TLRPC.TL_updateDeleteQuickReplyMessages) baseUpdate;
                 if (deletedQuickReplyMessages == null) {
