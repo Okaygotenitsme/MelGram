@@ -13530,6 +13530,32 @@ public class MessagesStorage extends BaseController {
         });
     }
 
+    public void saveDeletedMessages(long dialogId, ArrayList<Integer> messageIds) {
+    storageQueue.postRunnable(() -> {
+        try {
+            for (int i = 0; i < messageIds.size(); i++) {
+                int mid = messageIds.get(i);
+                SQLiteCursor cursor = database.queryFinalized("SELECT data FROM messages_v2 WHERE mid = " + mid + " AND uid = " + dialogId);
+                if (cursor.next()) {
+                    NativeByteBuffer data = cursor.byteBufferValue(0);
+                    SQLitePreparedStatement state = database.executeFast("REPLACE INTO melgram_deleted_messages VALUES(?, ?, ?, ?)");
+                    state.requery();
+                    state.bindInteger(1, mid);
+                    state.bindLong(2, dialogId);
+                    state.bindInteger(3, (int) (System.currentTimeMillis() / 1000));
+                    state.bindByteBuffer(4, data);
+                    state.step();
+                    state.dispose();
+                    if (data != null) data.reuse();
+                }
+                cursor.dispose();
+            }
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+    });
+    }
+
     protected void deletePushMessages(long dialogId, ArrayList<Integer> messages) {
         try {
             database.executeFast(String.format(Locale.US, "DELETE FROM unread_push_messages WHERE uid = %d AND mid IN(%s)", dialogId, TextUtils.join(",", messages))).stepThis().dispose();
